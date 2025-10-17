@@ -7,7 +7,8 @@
 
 class Triangle {
 public:
-    Triangle([[maybe_unused]] const Vector& a, [[maybe_unused]] const Vector& b, [[maybe_unused]] const Vector& c) {
+    Triangle([[maybe_unused]] const Vector& a, [[maybe_unused]] const Vector& b,
+             [[maybe_unused]] const Vector& c) {
 #if defined(__x86_64__) && defined(__linux__)
         asm volatile(
             "mov $0, %%rdi\n\t"

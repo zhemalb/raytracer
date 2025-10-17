@@ -6,7 +6,8 @@
 
 class Intersection {
 public:
-    Intersection([[maybe_unused]] const Vector& position, [[maybe_unused]] const Vector& normal, [[maybe_unused]] double distance) {
+    Intersection([[maybe_unused]] const Vector& position, [[maybe_unused]] const Vector& normal,
+                 [[maybe_unused]] double distance) {
 #if defined(__x86_64__) && defined(__linux__)
         asm volatile(
             "mov $0, %%rdi\n\t"

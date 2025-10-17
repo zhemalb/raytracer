@@ -6,8 +6,10 @@
 
 class Vector {
 public:
-    Vector() : data_{0.0, 0.0, 0.0} {}
-    Vector(double x, double y, double z) : data_{x, y, z} {}
+    Vector() : data_{0.0, 0.0, 0.0} {
+    }
+    Vector(double x, double y, double z) : data_{x, y, z} {
+    }
 
     double& operator[](size_t ind) {
         return data_[ind];
