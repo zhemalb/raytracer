@@ -7,8 +7,7 @@
 #include <exception>
 #include <filesystem>
 
-Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
-             const RenderOptions& render_options) {
+Image Render() {
 #if defined(__x86_64__) && defined(__linux__)
     asm volatile(
         "mov $0, %%rdi\n\t"
