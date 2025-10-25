@@ -12,6 +12,7 @@ public:
     const Vector& GetDirection() const {
         return direction_;
     }
+
 private:
     Vector origin_{};
     Vector direction_{};

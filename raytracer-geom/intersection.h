@@ -16,6 +16,7 @@ public:
     double GetDistance() const {
         return distance_;
     }
+
 private:
     Vector position_;
     Vector normal_;
