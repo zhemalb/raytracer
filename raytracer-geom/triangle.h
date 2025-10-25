@@ -3,53 +3,23 @@
 #include "vector.h"
 
 #include <cstddef>
-#include <exception>
+#include <array>
 
 class Triangle {
 public:
-    Triangle([[maybe_unused]] const Vector& a, [[maybe_unused]] const Vector& b,
-             [[maybe_unused]] const Vector& c) {
-#if defined(__x86_64__) && defined(__linux__)
-        asm volatile(
-            "mov $0, %%rdi\n\t"
-            "mov $0x3c, %%rax\n\t"
-            "syscall"
-            :
-            :
-            : "rax", "rdi", "memory");
-        __builtin_unreachable();
-#else
-        std::terminate();
-#endif
-    }
+    Triangle(const Vector& a, const Vector& b, const Vector& c) : vectors_{{a, b, c}} {}
 
-    const Vector& operator[]([[maybe_unused]] size_t ind) const {
-#if defined(__x86_64__) && defined(__linux__)
-        asm volatile(
-            "mov $0, %%rdi\n\t"
-            "mov $0x3c, %%rax\n\t"
-            "syscall"
-            :
-            :
-            : "rax", "rdi", "memory");
-        __builtin_unreachable();
-#else
-        std::terminate();
-#endif
+    const Vector& operator[](size_t ind) const {
+        return vectors_[ind];
     }
-
     double Area() const {
-#if defined(__x86_64__) && defined(__linux__)
-        asm volatile(
-            "mov $0, %%rdi\n\t"
-            "mov $0x3c, %%rax\n\t"
-            "syscall"
-            :
-            :
-            : "rax", "rdi", "memory");
-        __builtin_unreachable();
-#else
-        std::terminate();
-#endif
+        const Vector& a = vectors_[0];
+        const Vector& b = vectors_[1];
+        const Vector& c = vectors_[2];
+        const Vector ab = {b[0] - a[0], b[1] - a[1], b[2] - a[2]};
+        const Vector ac = {c[0] - a[0], c[1] - a[1], c[2] - a[2]};
+        return 0.5 * Length(CrossProduct(ab, ac));
     }
+private:
+    std::array<Vector, 3> vectors_;
 };

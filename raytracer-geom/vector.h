@@ -2,14 +2,15 @@
 
 #include <array>
 #include <cstddef>
-#include <exception>
+#include <cmath>
+
+class Vector;
+double Length(const Vector& v);
 
 class Vector {
 public:
-    Vector() : data_{0.0, 0.0, 0.0} {
-    }
-    Vector(double x, double y, double z) : data_{x, y, z} {
-    }
+    Vector() : data_{0.0, 0.0, 0.0} {}
+    Vector(double x, double y, double z) : data_{x, y, z} {}
 
     double& operator[](size_t ind) {
         return data_[ind];
@@ -20,65 +21,30 @@ public:
     }
 
     void Normalize() {
-#if defined(__x86_64__) && defined(__linux__)
-        asm volatile(
-            "mov $0, %%rdi\n\t"
-            "mov $0x3c, %%rax\n\t"
-            "syscall"
-            :
-            :
-            : "rax", "rdi", "memory");
-        __builtin_unreachable();
-#else
-        std::terminate();
-#endif
+        const double len = Length(*this);
+        if (len <= 1e-30) {
+            return;
+        }
+        const double mult = 1.0 / len;
+        data_[0] *= mult;
+        data_[1] *= mult;
+        data_[2] *= mult;
     }
 
 private:
     std::array<double, 3> data_;
 };
 
-inline double DotProduct([[maybe_unused]] const Vector& a, [[maybe_unused]] const Vector& b) {
-#if defined(__x86_64__) && defined(__linux__)
-    asm volatile(
-        "mov $0, %%rdi\n\t"
-        "mov $0x3c, %%rax\n\t"
-        "syscall"
-        :
-        :
-        : "rax", "rdi", "memory");
-    __builtin_unreachable();
-#else
-    std::terminate();
-#endif
+inline double DotProduct(const Vector& a, const Vector& b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
-
-inline Vector CrossProduct([[maybe_unused]] const Vector& a, [[maybe_unused]] const Vector& b) {
-#if defined(__x86_64__) && defined(__linux__)
-    asm volatile(
-        "mov $0, %%rdi\n\t"
-        "mov $0x3c, %%rax\n\t"
-        "syscall"
-        :
-        :
-        : "rax", "rdi", "memory");
-    __builtin_unreachable();
-#else
-    std::terminate();
-#endif
+inline Vector CrossProduct(const Vector& a, const Vector& b) {
+    return Vector(
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0]
+    );
 }
-
-inline double Length([[maybe_unused]] const Vector& v) {
-#if defined(__x86_64__) && defined(__linux__)
-    asm volatile(
-        "mov $0, %%rdi\n\t"
-        "mov $0x3c, %%rax\n\t"
-        "syscall"
-        :
-        :
-        : "rax", "rdi", "memory");
-    __builtin_unreachable();
-#else
-    std::terminate();
-#endif
+inline double Length(const Vector& v) {
+    return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
