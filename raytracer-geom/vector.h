@@ -41,8 +41,7 @@ inline double DotProduct(const Vector& a, const Vector& b) {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 inline Vector CrossProduct(const Vector& a, const Vector& b) {
-    return Vector(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]
-    );
+    return Vector(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]);
 }
 inline double Length(const Vector& v) {
     return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);

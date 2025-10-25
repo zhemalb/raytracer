@@ -24,7 +24,6 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Sphere& sphere
     if (d < 0) {
         return std::nullopt;
     }
-    
     double sqrt_d = std::sqrt(d);
     double t = (-b - sqrt_d) / (2.0 * a);
     if (t < 0) {
@@ -33,7 +32,6 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Sphere& sphere
             return std::nullopt;
         }
     }
-    
     double pos_x = origin[0] + direction[0] * t;
     double pos_y = origin[1] + direction[1] * t;
     double pos_z = origin[2] + direction[2] * t;
