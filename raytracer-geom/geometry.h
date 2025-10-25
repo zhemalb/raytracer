@@ -166,17 +166,14 @@ Vector GetBarycentricCoords(const Triangle& triangle, const Vector& point) {
     double v2x = point[0] - a[0];
     double v2y = point[1] - a[1];
     double v2z = point[2] - a[2];
-
     double d00 = v0x * v0x + v0y * v0y + v0z * v0z;
     double d01 = v0x * v1x + v0y * v1y + v0z * v1z;
     double d11 = v1x * v1x + v1y * v1y + v1z * v1z;
     double d20 = v2x * v0x + v2y * v0y + v2z * v0z;
     double d21 = v2x * v1x + v2y * v1y + v2z * v1z;
-
     double d = d00 * d11 - d01 * d01;
     double v = (d11 * d20 - d01 * d21) / d;
     double w = (d00 * d21 - d01 * d20) / d;
     double u = 1.0 - v - w;
-    
     return Vector(u, v, w);
 }
