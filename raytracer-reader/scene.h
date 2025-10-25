@@ -51,8 +51,11 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
         Material cur;
         while (std::getline(input, line)) {
             std::string s = line;
-            auto l = std::find_if(s.begin(), s.end(), [](unsigned char c){ return !std::isspace(c); });
-            auto r = std::find_if(s.rbegin(), s.rend(), [](unsigned char c){ return !std::isspace(c); }).base();
+            auto l =
+                std::find_if(s.begin(), s.end(), [](unsigned char c) { return !std::isspace(c); });
+            auto r = std::find_if(s.rbegin(), s.rend(), [](unsigned char c) {
+                         return !std::isspace(c);
+                     }).base();
             if (l < r) {
                 s = std::string(l, r);
             } else {
@@ -63,8 +66,11 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
                     res[cur_name] = cur;
                 }
                 cur_name = s.substr(7);
-                auto nl = std::find_if(cur_name.begin(), cur_name.end(), [](unsigned char c){ return !std::isspace(c); });
-                auto nr = std::find_if(cur_name.rbegin(), cur_name.rend(), [](unsigned char c){ return !std::isspace(c); }).base();
+                auto nl = std::find_if(cur_name.begin(), cur_name.end(),
+                                       [](unsigned char c) { return !std::isspace(c); });
+                auto nr = std::find_if(cur_name.rbegin(), cur_name.rend(), [](unsigned char c) {
+                              return !std::isspace(c);
+                          }).base();
                 if (nl < nr) {
                     cur_name = std::string(nl, nr);
                 } else {
@@ -202,17 +208,14 @@ Scene ReadScene(const std::filesystem::path& path) {
                     int i0 = v_idx[0];
                     int i1 = v_idx[i];
                     int i2 = v_idx[i + 1];
-                    if (i0 < 0 || i1 < 0 || i2 < 0 ||
-                        static_cast<size_t>(i0) >= vectors.size() ||
+                    if (i0 < 0 || i1 < 0 || i2 < 0 || static_cast<size_t>(i0) >= vectors.size() ||
                         static_cast<size_t>(i1) >= vectors.size() ||
                         static_cast<size_t>(i2) >= vectors.size()) {
                         continue;
                     }
-                    Object object{
-                        current_material,
-                        Triangle(vectors[i0], vectors[i1], vectors[i2]),
-                        {nullptr, nullptr, nullptr}
-                    };
+                    Object object{current_material,
+                                  Triangle(vectors[i0], vectors[i1], vectors[i2]),
+                                  {nullptr, nullptr, nullptr}};
                     scene.objects_.push_back(object);
                     int ni0 = n_idx[0];
                     int ni1 = n_idx[i];
