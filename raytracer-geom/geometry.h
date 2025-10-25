@@ -17,19 +17,16 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Sphere& sphere
     double oc_y = origin[1] - center[1];
     double oc_z = origin[2] - center[2];
     const Vector oc = {oc_x, oc_y, oc_z};
-    
     double a = DotProduct(direction, direction);
     double b = 2.0 * DotProduct(oc, direction);
     double c = DotProduct(oc, oc) - sphere.GetRadius() * sphere.GetRadius();
     double d = b * b - 4 * a * c;
-    
     if (d < 0) {
         return std::nullopt;
     }
     
     double sqrt_d = std::sqrt(d);
     double t = (-b - sqrt_d) / (2.0 * a);
-    
     if (t < 0) {
         t = (-b + sqrt_d) / (2.0 * a);
         if (t < 0) {
@@ -41,7 +38,6 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Sphere& sphere
     double pos_y = origin[1] + direction[1] * t;
     double pos_z = origin[2] + direction[2] * t;
     const Vector position = {pos_x, pos_y, pos_z};
-
     double norm_x = position[0] - center[0];
     double norm_y = position[1] - center[1];
     double norm_z = position[2] - center[2];
@@ -60,7 +56,6 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Sphere& sphere
     double diff_z = position[2] - origin[2];
     const Vector diff = {diff_x, diff_y, diff_z};
     double dist = Length(diff);
-
     return Intersection(position, normal, dist);
 }
 
@@ -73,15 +68,12 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Triangle& tria
     double e1_y = b[1] - a[1];
     double e1_z = b[2] - a[2];
     Vector e1{e1_x, e1_y, e1_z};
-
     double e2_x = c[0] - a[0];
     double e2_y = c[1] - a[1];
     double e2_z = c[2] - a[2];
     Vector e2{e2_x, e2_y, e2_z};
-    
     const Vector& direction = ray.GetDirection();
     const Vector& origin = ray.GetOrigin();
-
     Vector pvec = CrossProduct(direction, e2);
     double det = DotProduct(e1, pvec);
     if (det < 1e-8 && det > -1e-8) {
@@ -109,11 +101,9 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Triangle& tria
     double pos_x = origin[0] + direction[0] * t;
     double pos_y = origin[1] + direction[1] * t;
     double pos_z = origin[2] + direction[2] * t;
-
     Vector position{pos_x, pos_y, pos_z};
     Vector normal = CrossProduct(e1, e2);
     normal.Normalize();
-
     if (DotProduct(normal, direction) > 0.0) {
         double neg_x = -normal[0];
         double neg_y = -normal[1];
@@ -125,7 +115,6 @@ std::optional<Intersection> GetIntersection(const Ray& ray, const Triangle& tria
     double diff_y = position[1] - origin[1];
     double diff_z = position[2] - origin[2];
     Vector diff{diff_x, diff_y, diff_z};
-
     const double dist = Length(diff);
     return Intersection(position, normal, dist);
 }

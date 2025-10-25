@@ -9,8 +9,10 @@ double Length(const Vector& v);
 
 class Vector {
 public:
-    Vector() : data_{0.0, 0.0, 0.0} {}
-    Vector(double x, double y, double z) : data_{x, y, z} {}
+    Vector() : data_{0.0, 0.0, 0.0} {
+    }
+    Vector(double x, double y, double z) : data_{x, y, z} {
+    }
 
     double& operator[](size_t ind) {
         return data_[ind];
@@ -39,10 +41,7 @@ inline double DotProduct(const Vector& a, const Vector& b) {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 inline Vector CrossProduct(const Vector& a, const Vector& b) {
-    return Vector(
-        a[1] * b[2] - a[2] * b[1],
-        a[2] * b[0] - a[0] * b[2],
-        a[0] * b[1] - a[1] * b[0]
+    return Vector(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]
     );
 }
 inline double Length(const Vector& v) {

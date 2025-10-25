@@ -7,7 +7,8 @@
 
 class Triangle {
 public:
-    Triangle(const Vector& a, const Vector& b, const Vector& c) : vectors_{{a, b, c}} {}
+    Triangle(const Vector& a, const Vector& b, const Vector& c) : vectors_{{a, b, c}} {
+    }
 
     const Vector& operator[](size_t ind) const {
         return vectors_[ind];
@@ -20,6 +21,7 @@ public:
         const Vector ac = {c[0] - a[0], c[1] - a[1], c[2] - a[2]};
         return 0.5 * Length(CrossProduct(ab, ac));
     }
+
 private:
     std::array<Vector, 3> vectors_;
 };
