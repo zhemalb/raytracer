@@ -11,18 +11,11 @@ struct CameraBasis {
 };
 
 inline CameraBasis BuildCameraBasis(const Vector& look_from, const Vector& look_to) {
-    double x = look_to[0] - look_from[0];
-    double y = look_to[1] - look_from[1];
-    double z = look_to[2] - look_from[2];
-    Vector forward{x, y, z};
+    Vector forward{look_to[0] - look_from[0], look_to[1] - look_from[1], look_to[2] - look_from[2]};
     forward.Normalize();
     Vector world_up{0.0, 1.0, 0.0};
     if (std::fabs(forward[0]) < 1e-6 && std::fabs(forward[2]) < 1e-6) {
-        if (forward[1] > 0.0) {
-            world_up = Vector{0.0, 0.0, 1.0};
-        } else {
-            world_up = Vector{0.0, 0.0, -1.0};
-        }
+        world_up = (forward[1] > 0.0) ? Vector{0.0, 0.0, 1.0} : Vector{0.0, 0.0, -1.0};
     }
     Vector right = CrossProduct(forward, world_up);
     right.Normalize();

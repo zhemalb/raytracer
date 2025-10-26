@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <cctype>
 #include <array>
-#include <ranges>
 
 class Scene {
 public:
@@ -133,19 +132,19 @@ Scene ReadScene(const std::filesystem::path& path) {
     std::vector<std::array<int, 3>> pending_normals;
     std::string line;
     while (std::getline(input, line)) {
-        if (line.empty() || line.starts_with("# ")) {
+        if (line.empty() || line.starts_with("#")) {
             // skip
-        } else if (line.starts_with("vn ")) {
+        } else if (line.rfind("vn ", 0) == 0 || line.rfind("vn\t", 0) == 0) {
             std::istringstream iss(line.substr(3));
             double x, y, z;
             iss >> x >> y >> z;
             normals.push_back(Vector(x, y, z));
-        } else if (line.starts_with("v ")) {
-            std::istringstream iss(line.substr(2));
+        } else if (line.rfind("v ", 0) == 0 || line.rfind("v\t", 0) == 0) {
+            std::istringstream iss(line.substr(1));
             double x, y, z;
             iss >> x >> y >> z;
             vectors.push_back(Vector(x, y, z));
-        } else if (line.starts_with("mtllib ")) {
+        } else if (line.rfind("mtllib ", 0) == 0) {
             std::string filename = line.substr(7);
             auto start = std::find_if(filename.begin(), filename.end(),
                                       [](unsigned char c) { return !std::isspace(c); });
@@ -155,7 +154,7 @@ Scene ReadScene(const std::filesystem::path& path) {
             filename = std::string(start, end);
             std::filesystem::path mpath = path.parent_path() / filename;
             scene.materials_ = ReadMaterials(mpath);
-        } else if (line.starts_with("usemtl ")) {
+        } else if (line.rfind("usemtl ", 0) == 0) {
             std::string name = line.substr(7);
             auto start = std::find_if(name.begin(), name.end(),
                                       [](unsigned char c) { return !std::isspace(c); });
@@ -166,8 +165,8 @@ Scene ReadScene(const std::filesystem::path& path) {
             if (scene.materials_.contains(name)) {
                 current_material = &scene.materials_.at(name);
             }
-        } else if (line.starts_with("f ")) {
-            std::istringstream iss(line.substr(2));
+        } else if (line.rfind("f ", 0) == 0 || line.rfind("f\t", 0) == 0) {
+            std::istringstream iss(line.substr(1));
             std::vector<int> v_idx;
             std::vector<int> n_idx;
             std::string tok;
@@ -223,14 +222,14 @@ Scene ReadScene(const std::filesystem::path& path) {
                     pending_normals.push_back({ni0, ni1, ni2});
                 }
             }
-        } else if (line.starts_with("S ")) {
-            std::istringstream iss(line.substr(2));
+        } else if (line.rfind("S ", 0) == 0 || line.rfind("S\t", 0) == 0) {
+            std::istringstream iss(line.substr(1));
             double x, y, z, r;
             iss >> x >> y >> z >> r;
             SphereObject sphere{current_material, Sphere(Vector(x, y, z), r)};
             scene.spheres_.push_back(sphere);
-        } else if (line.starts_with("P ")) {
-            std::istringstream iss(line.substr(2));
+        } else if (line.rfind("P ", 0) == 0 || line.rfind("P\t", 0) == 0) {
+            std::istringstream iss(line.substr(1));
             double x, y, z, r, g, b;
             iss >> x >> y >> z >> r >> g >> b;
             Light light;
@@ -241,7 +240,9 @@ Scene ReadScene(const std::filesystem::path& path) {
     }
     scene.vectors_ = vectors;
     scene.normals_ = normals;
-    for (auto [object, pn] : std::views::zip(scene.objects_, pending_normals)) {
+    for (size_t k = 0; k < scene.objects_.size() && k < pending_normals.size(); ++k) {
+        auto& object = scene.objects_[k];
+        const auto& pn = pending_normals[k];
         for (size_t j = 0; j < 3; ++j) {
             const int ni = pn[j];
             if (ni >= 0 && static_cast<size_t>(ni) < scene.normals_.size()) {
