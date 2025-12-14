@@ -9,31 +9,21 @@
 #include <optional>
 #include <limits>
 
-template <typename Range, typename MemberPtr>
-void ConsiderAll(const Ray& ray, const Range& range, MemberPtr member_ptr, const Vector& origin,
-                 double& min_dist, std::optional<Intersection>& best) {
-    for (const typename Range::value_type& item : range) {
-        std::optional<Intersection> hit = GetIntersection(ray, item.*member_ptr);
-        if (!hit) {
-            continue;
-        }
-        const Vector& pos = hit->GetPosition();
-        double dx = pos[0] - origin[0];
-        double dy = pos[1] - origin[1];
-        double dz = pos[2] - origin[2];
-        Vector diff{dx, dy, dz};
-        double dist = Length(diff);
-        if (dist < min_dist) {
-            min_dist = dist;
-            best = hit;
-        }
-    }
-}
+struct TraceDetails {
+    Vector position;
+    Vector normal;
+    double distance;
+    const Object* object = nullptr;
+    const SphereObject* sphere = nullptr;
+};
 
-inline std::optional<Hit> TraceRay(const Ray& ray, const Scene& scene, const Vector& origin) {
+inline std::optional<TraceDetails> TraceRayDetailed(const Ray& ray, const Scene& scene,
+                                                    const Vector& origin) {
     std::optional<Intersection> best;
     double min_dist = std::numeric_limits<double>::infinity();
     const Object* best_obj = nullptr;
+    const SphereObject* best_sphere = nullptr;
+
     for (const Object& obj : scene.GetObjects()) {
         auto hit = GetIntersection(ray, obj.polygon);
         if (!hit) {
@@ -46,9 +36,10 @@ inline std::optional<Hit> TraceRay(const Ray& ray, const Scene& scene, const Vec
             min_dist = dist;
             best = hit;
             best_obj = &obj;
-            (void)0;
+            best_sphere = nullptr;
         }
     }
+
     for (const SphereObject& sph : scene.GetSphereObjects()) {
         auto hit = GetIntersection(ray, sph.sphere);
         if (!hit) {
@@ -61,12 +52,14 @@ inline std::optional<Hit> TraceRay(const Ray& ray, const Scene& scene, const Vec
             min_dist = dist;
             best = hit;
             best_obj = nullptr;
-            (void)0;
+            best_sphere = &sph;
         }
     }
+
     if (!best) {
         return std::nullopt;
     }
+
     Vector pos = best->GetPosition();
     Vector nrm = best->GetNormal();
     if (best_obj && best_obj->normals[0] && best_obj->normals[1] && best_obj->normals[2]) {
@@ -78,6 +71,19 @@ inline std::optional<Hit> TraceRay(const Ray& ray, const Scene& scene, const Vec
                      bc[0] * n0[1] + bc[1] * n1[1] + bc[2] * n2[1],
                      bc[0] * n0[2] + bc[1] * n1[2] + bc[2] * n2[2]);
         nrm.Normalize();
+
+        if (DotProduct(nrm, ray.GetDirection()) > 0.0) {
+            nrm = Vector{-nrm[0], -nrm[1], -nrm[2]};
+        }
     }
-    return Hit{pos, nrm, min_dist};
+
+    return TraceDetails{pos, nrm, min_dist, best_obj, best_sphere};
+}
+
+inline std::optional<Hit> TraceRay(const Ray& ray, const Scene& scene, const Vector& origin) {
+    auto details = TraceRayDetailed(ray, scene, origin);
+    if (!details) {
+        return std::nullopt;
+    }
+    return Hit{details->position, details->normal, details->distance};
 }

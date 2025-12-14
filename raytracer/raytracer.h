@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "pixel_processors.h"
+#include "postprocessing.h"
 
 #include <filesystem>
 #include <vector>
@@ -34,7 +35,13 @@ Image Render(const std::filesystem::path& path, const CameraOptions& camera_opti
             DepthCollector{width, height, basis, aspect, scale, origin, scene, depths, max_depth});
         ForEachPixel(width, height, DepthRenderer{width, depths, max_depth, image});
     } else if (render_options.mode == RenderMode::kFull) {
-        // placeholder
+        // Create HDR buffer for intermediate color values
+        std::vector<Vector> hdr_colors(width * height, Vector{0, 0, 0});
+        ForEachPixel(width, height,
+                     FullModePixelProcessor{width, height, basis, aspect, scale, origin, scene,
+                                            render_options.depth, hdr_colors});
+        ApplyToneMapping(hdr_colors);
+        WriteImageWithGamma(hdr_colors, width, height, image);
     }
     return image;
 }

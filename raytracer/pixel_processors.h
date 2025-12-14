@@ -5,6 +5,7 @@
 #include "image.h"
 #include "trace.h"
 #include "color.h"
+#include "illumination.h"
 
 #include <vector>
 #include <algorithm>
@@ -88,5 +89,24 @@ struct DepthRenderer {
             pixel_color = {val, val, val};
         }
         image.SetPixel(pixel_color, y, x);
+    }
+};
+
+struct FullModePixelProcessor {
+    int width;
+    int height;
+    const CameraBasis& basis;
+    double aspect;
+    double scale;
+    const Vector& origin;
+    const Scene& scene;
+    int max_depth;
+    std::vector<Vector>& hdr_colors;
+
+    void operator()(int y, int x) {
+        Vector dir = GenerateRayDirection(x, y, width, height, basis, aspect, scale);
+        Ray ray(origin, dir);
+        Vector color = ComputeIllumination(ray, scene, origin, 0, max_depth, false);
+        hdr_colors[y * width + x] = color;
     }
 };
