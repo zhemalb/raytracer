@@ -1,11 +1,11 @@
 #pragma once
 
 #include "camera.h"
-#include "scene.h"
 #include "image.h"
 #include "trace.h"
 #include "color.h"
 #include "illumination.h"
+#include "trace_context.h"
 
 #include <vector>
 #include <algorithm>
@@ -26,13 +26,13 @@ struct NormalModePixelProcessor {
     double aspect;
     double scale;
     const Vector& origin;
-    const Scene& scene;
+    const TraceContext& ctx;
     Image& image;
 
     void operator()(int y, int x) {
         Vector dir = GenerateRayDirection(x, y, width, height, basis, aspect, scale);
         Ray ray(origin, dir);
-        std::optional<Hit> closest_hit = TraceRay(ray, scene, origin);
+        std::optional<Hit> closest_hit = TraceRay(ray, ctx, origin);
         RGB pixel_color = {0, 0, 0};
         if (closest_hit) {
             Vector n = closest_hit->normal;
@@ -58,14 +58,14 @@ struct DepthCollector {
     double aspect;
     double scale;
     const Vector& origin;
-    const Scene& scene;
+    const TraceContext& ctx;
     std::vector<double>& depths;
     double& max_depth;
 
     void operator()(int y, int x) {
         Vector dir = GenerateRayDirection(x, y, width, height, basis, aspect, scale);
         Ray ray(origin, dir);
-        std::optional<Hit> closest_hit = TraceRay(ray, scene, origin);
+        std::optional<Hit> closest_hit = TraceRay(ray, ctx, origin);
         if (closest_hit) {
             depths[y * width + x] = closest_hit->distance;
             max_depth = std::max(max_depth, closest_hit->distance);
@@ -99,14 +99,14 @@ struct FullModePixelProcessor {
     double aspect;
     double scale;
     const Vector& origin;
-    const Scene& scene;
+    const TraceContext& ctx;
     int max_depth;
     std::vector<Vector>& hdr_colors;
 
     void operator()(int y, int x) {
         Vector dir = GenerateRayDirection(x, y, width, height, basis, aspect, scale);
         Ray ray(origin, dir);
-        Vector color = ComputeIllumination(ray, scene, origin, 0, max_depth, false);
+        Vector color = ComputeIllumination(ray, ctx, origin, 0, max_depth, false);
         hdr_colors[y * width + x] = color;
     }
 };

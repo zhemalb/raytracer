@@ -7,13 +7,13 @@
 
 constexpr double kEps = 1e-5;
 
-Vector ComputeIllumination(const Ray& ray, const Scene& scene, const Vector& origin,
+Vector ComputeIllumination(const Ray& ray, const TraceContext& ctx, const Vector& origin,
                            int current_depth, int max_depth, bool inside_object = false) {
     if (current_depth >= max_depth) {
         return Vector{0, 0, 0};
     }
 
-    auto hit = TraceRayDetailed(ray, scene, origin);
+    auto hit = TraceRayDetailed(ray, ctx, origin);
     if (!hit) {
         return Vector{0, 0, 0};
     }
@@ -39,14 +39,14 @@ Vector ComputeIllumination(const Ray& ray, const Scene& scene, const Vector& ori
     Vector to_camera = -ray.GetDirection();
     to_camera.Normalize();
 
-    for (const Light& l : scene.GetLights()) {
+    for (const Light& l : ctx.scene.GetLights()) {
         Vector to_light = l.position - pos;
         double light_distance = Length(to_light);
         to_light.Normalize();
 
         Vector shadow_origin = pos + norm * kEps;
         Ray shadow_ray(shadow_origin, to_light);
-        auto shadow_hit = TraceRayDetailed(shadow_ray, scene, shadow_origin);
+        auto shadow_hit = TraceRayDetailed(shadow_ray, ctx, shadow_origin);
 
         if (shadow_hit && shadow_hit->distance < light_distance - kEps) {
             continue;
@@ -70,7 +70,7 @@ Vector ComputeIllumination(const Ray& ray, const Scene& scene, const Vector& ori
         Vector reflected_origin = pos + norm * kEps;
         Ray reflected_ray(reflected_origin, reflected_dir);
 
-        Vector reflected_color = ComputeIllumination(reflected_ray, scene, reflected_origin,
+        Vector reflected_color = ComputeIllumination(reflected_ray, ctx, reflected_origin,
                                                      current_depth + 1, max_depth, false);
 
         color = color + material->albedo[1] * reflected_color;
@@ -86,9 +86,8 @@ Vector ComputeIllumination(const Ray& ray, const Scene& scene, const Vector& ori
 
             double transparency = inside_object ? 1.0 : material->albedo[2];
 
-            Vector refracted_color =
-                ComputeIllumination(refracted_ray, scene, refracted_origin, current_depth + 1,
-                                    max_depth, !inside_object);
+            Vector refracted_color = ComputeIllumination(
+                refracted_ray, ctx, refracted_origin, current_depth + 1, max_depth, !inside_object);
 
             color = color + transparency * refracted_color;
         }

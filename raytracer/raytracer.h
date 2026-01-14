@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "pixel_processors.h"
 #include "postprocessing.h"
+#include "trace_context.h"
 
 #include <filesystem>
 #include <vector>
@@ -16,6 +17,7 @@ Image Render(const std::filesystem::path& path, const CameraOptions& camera_opti
              const RenderOptions& render_options) {
     Image image(camera_options.screen_width, camera_options.screen_height);
     Scene scene = ReadScene(path);
+    TraceContext ctx{scene};
     const Vector origin = camera_options.look_from;
     const CameraBasis basis = BuildCameraBasis(camera_options.look_from, camera_options.look_to);
     const double aspect = static_cast<double>(camera_options.screen_width) /
@@ -26,19 +28,18 @@ Image Render(const std::filesystem::path& path, const CameraOptions& camera_opti
     if (render_options.mode == RenderMode::kNormal) {
         ForEachPixel(
             width, height,
-            NormalModePixelProcessor{width, height, basis, aspect, scale, origin, scene, image});
+            NormalModePixelProcessor{width, height, basis, aspect, scale, origin, ctx, image});
     } else if (render_options.mode == RenderMode::kDepth) {
         std::vector<double> depths(width * height, -1.0);
         double max_depth = 0.0;
         ForEachPixel(
             width, height,
-            DepthCollector{width, height, basis, aspect, scale, origin, scene, depths, max_depth});
+            DepthCollector{width, height, basis, aspect, scale, origin, ctx, depths, max_depth});
         ForEachPixel(width, height, DepthRenderer{width, depths, max_depth, image});
     } else if (render_options.mode == RenderMode::kFull) {
-        // Create HDR buffer for intermediate color values
         std::vector<Vector> hdr_colors(width * height, Vector{0, 0, 0});
         ForEachPixel(width, height,
-                     FullModePixelProcessor{width, height, basis, aspect, scale, origin, scene,
+                     FullModePixelProcessor{width, height, basis, aspect, scale, origin, ctx,
                                             render_options.depth, hdr_colors});
         ApplyToneMapping(hdr_colors);
         WriteImageWithGamma(hdr_colors, width, height, image);
