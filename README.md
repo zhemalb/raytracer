@@ -42,7 +42,7 @@
 1. cmake --preset debug
 2. cmake --build --preset debug -j 8
 
-Для release используй preset release. Для санитайзеров используй preset asan.
+Для release требуется preset release. Для санитайзеров требуется preset asan.
 
 ### Запуск тестов
 
