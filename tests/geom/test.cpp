@@ -12,13 +12,14 @@
 #include <fstream>
 #include <algorithm>
 #include <array>
+#include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 namespace {
 
-const auto kTestsDir = GetRelativeDir(__FILE__, "tests");
+const auto kTestsDir = std::filesystem::path{RT_TESTDATA_DIR};
 
 constexpr auto kX = 12.3;
 constexpr auto kY = 45.6;

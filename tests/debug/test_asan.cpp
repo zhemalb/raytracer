@@ -1,21 +1,19 @@
 #include "options/camera_options.h"
 #include "options/render_options.h"
-#include "tests/commons.h"
+#include "commons.h"
 #include "raytracer.h"
-#include "utils.h"
-#include "image.h"
 
 #include <cmath>
 #include <string_view>
 #include <optional>
-#include <numbers>
+#include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
 
 void CheckImage(std::string_view obj_filename, std::string_view result_filename,
                 const CameraOptions& camera_options, const RenderOptions& render_options,
                 const std::optional<std::filesystem::path>& output_path = std::nullopt) {
-    static const auto kTestsDir = GetRelativeDir(__FILE__, "tests");
+    static const auto kTestsDir = std::filesystem::path{RT_TESTDATA_DIR};
     auto image = Render(kTestsDir / obj_filename, camera_options, render_options);
     if (output_path) {
         image.Write(*output_path);
@@ -25,7 +23,10 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 
 TEST_CASE("Shading parts") {
     CameraOptions camera_opts{640, 480};
-    CheckImage("shading_parts/scene.obj", "shading_parts/scene.png", camera_opts, {1});
+    RenderOptions render_opts{1, RenderMode::kDepth};
+    CheckImage("shading_parts/scene.obj", "shading_parts/depth.png", camera_opts, render_opts);
+    render_opts.mode = RenderMode::kNormal;
+    CheckImage("shading_parts/scene.obj", "shading_parts/normal.png", camera_opts, render_opts);
 }
 
 TEST_CASE("Triangle") {
@@ -33,7 +34,10 @@ TEST_CASE("Triangle") {
                               .screen_height = 480,
                               .look_from = {0., 2., 0.},
                               .look_to = {0., 0., 0.}};
-    CheckImage("triangle/scene.obj", "triangle/scene.png", camera_opts, {1});
+    RenderOptions render_opts{1, RenderMode::kDepth};
+    CheckImage("triangle/scene.obj", "triangle/depth.png", camera_opts, render_opts);
+    render_opts.mode = RenderMode::kNormal;
+    CheckImage("triangle/scene.obj", "triangle/normal.png", camera_opts, render_opts);
 }
 
 TEST_CASE("Triangle2") {
@@ -41,7 +45,10 @@ TEST_CASE("Triangle2") {
                               .screen_height = 480,
                               .look_from = {0., -2., 0.},
                               .look_to = {0., 0., 0.}};
-    CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1});
+    RenderOptions render_opts{1, RenderMode::kDepth};
+    CheckImage("triangle/scene.obj", "triangle/depth2.png", camera_opts, render_opts);
+    render_opts.mode = RenderMode::kNormal;
+    CheckImage("triangle/scene.obj", "triangle/normal2.png", camera_opts, render_opts);
 }
 
 TEST_CASE("Box with spheres") {
@@ -50,5 +57,8 @@ TEST_CASE("Box with spheres") {
                               .fov = std::numbers::pi / 3,
                               .look_from = {0., .7, 1.75},
                               .look_to = {0., .7, 0.}};
-    CheckImage("box/cube.obj", "box/cube.png", camera_opts, {4});
+    RenderOptions render_opts{4, RenderMode::kDepth};
+    CheckImage("box/cube.obj", "box/depth.png", camera_opts, render_opts);
+    render_opts.mode = RenderMode::kNormal;
+    CheckImage("box/cube.obj", "box/normal.png", camera_opts, render_opts);
 }

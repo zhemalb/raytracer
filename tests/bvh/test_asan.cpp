@@ -1,8 +1,7 @@
 #include "options/camera_options.h"
 #include "options/render_options.h"
-#include "tests/commons.h"
+#include "commons.h"
 #include "raytracer.h"
-#include "utils.h"
 
 #include <cmath>
 #include <string_view>
@@ -14,7 +13,7 @@
 void CheckImage(std::string_view obj_filename, std::string_view result_filename,
                 const CameraOptions& camera_options, const RenderOptions& render_options,
                 const std::optional<std::filesystem::path>& output_path = std::nullopt) {
-    static const auto kTestsDir = GetRelativeDir(__FILE__, "tests");
+    static const auto kTestsDir = std::filesystem::path{RT_TESTDATA_DIR};
     auto image = Render(kTestsDir / obj_filename, camera_options, render_options);
     if (output_path) {
         image.Write(*output_path);

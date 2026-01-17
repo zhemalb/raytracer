@@ -16,4 +16,8 @@ endfunction()
 function(add_catch TARGET)
   add_shad_executable(${TARGET} ${ARGN})
   target_link_libraries(${TARGET} PRIVATE Catch2::Catch2WithMain)
+
+  if(BUILD_TESTING)
+    add_test(NAME ${TARGET} COMMAND ${TARGET})
+  endif()
 endfunction()

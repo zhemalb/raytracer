@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(raytracer)
+project(raytracer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD             23)
 set(CMAKE_CXX_STANDARD_REQUIRED    ON)
@@ -8,6 +8,8 @@ set(CMAKE_MODULE_PATH              "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS  ON)
+
+include(CTest)
 
 # clang-tidy issues
 if(APPLE)
@@ -18,17 +20,10 @@ if(APPLE)
   string(STRIP "${CMAKE_OSX_SYSROOT}" CMAKE_OSX_SYSROOT)
 endif()
 
-include(cmake/BuildFlags.cmake)
-
 find_package(Catch REQUIRED)
 include(cmake/TestSolution.cmake)
 
-include_directories(utils)
-
 find_package(PNG REQUIRED)
 
-add_subdirectory(raytracer-geom)
-add_subdirectory(raytracer-reader)
-add_subdirectory(raytracer)
-add_subdirectory(raytracer-debug)
-add_subdirectory(raytracer-b2)
+add_subdirectory(libs)
+add_subdirectory(tests)

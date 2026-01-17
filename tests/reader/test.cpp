@@ -1,6 +1,6 @@
 #include "scene.h"
-#include "utils.h"
-#include "../utils/utils.h"
+
+#include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
@@ -20,7 +20,7 @@ void Check(const Vector& vector, double x) {
 }
 
 TEST_CASE("Scene") {
-    const auto test_dir = GetRelativeDir(__FILE__, "tests");
+    const auto test_dir = std::filesystem::path{RT_TESTDATA_DIR};
     const auto scene = ReadScene(test_dir / "cube.obj");
 
     const auto& materials_map = scene.GetMaterials();

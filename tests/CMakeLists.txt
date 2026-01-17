@@ -1,0 +1,5 @@
+add_subdirectory(geom)
+add_subdirectory(reader)
+add_subdirectory(core)
+add_subdirectory(debug)
+add_subdirectory(bvh)
